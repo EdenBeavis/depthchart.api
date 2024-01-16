@@ -16,20 +16,19 @@ namespace depthchart.api.Features.DepthChart
             _mediator = mediator;
         }
 
-        [HttpPost]
+        [HttpPost("addplayer")]
         public async Task<IActionResult> AddPlayerToDepthChart(string playerPosition, int playerId, int? positionDepth, CancellationToken token)
         {
             if (playerId <= 0) return BadRequest("Player Id must be greater than 0.");
             if (playerPosition.IsEmpty()) return BadRequest("Player position must have a value.");
 
-            var depthChartTask = await _mediator.Send(new AddNewPlayerToDepthChartRequest(playerPosition, playerId, positionDepth), token);
+            var depthChartTask = await _mediator.Send(new AddPlayerToDepthChartRequest(playerPosition, playerId, positionDepth), token);
 
-            return depthChartTask.Match(
-                depthPosition => Ok(depthPosition),
-                error => (IActionResult)BadRequest(error));
+            return await depthChartTask.Match(Ok,
+                ex => (IActionResult)BadRequest("Error adding player to depth chart. Check the player exists."));
         }
 
-        [HttpDelete]
+        [HttpDelete("delete/{playerPosition}/{playerId}")]
         public async Task<IActionResult> RemovePlayerFromDepthChart(string playerPosition, int playerId, CancellationToken token)
         {
             if (playerId <= 0) return BadRequest("Player Id must be greater than 0.");
@@ -40,7 +39,7 @@ namespace depthchart.api.Features.DepthChart
             return Ok(playerRemovedInDepthPostion);
         }
 
-        [HttpGet]
+        [HttpGet("backups/{playerPosition}/{playerId}")]
         public async Task<IActionResult> GetBackups(string playerPosition, int playerId, CancellationToken token)
         {
             if (playerId <= 0) return BadRequest("Player Id must be greater than 0.");
@@ -51,7 +50,7 @@ namespace depthchart.api.Features.DepthChart
             return Ok(playerBackups);
         }
 
-        [HttpGet]
+        [HttpGet("fullchart")]
         public async Task<IActionResult> GetFullDepthChart(CancellationToken token)
         {
             var depthChartRows = await _mediator.Send(new GetDepthChartRequest(), token);

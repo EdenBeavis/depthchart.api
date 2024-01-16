@@ -28,7 +28,7 @@ namespace depthchart.api.Features.Players.RequestHandlers
         {
             var newPlayer = _mapper.Map<Player>(request.NewPlayer);
 
-            // Default until this woul be scalled out.
+            // Default until this would be scalled out.
             newPlayer.Sport = SportType.NFL;
 
             return async () => await AddPlayerToDatabase(newPlayer, token);
@@ -37,6 +37,7 @@ namespace depthchart.api.Features.Players.RequestHandlers
         private async Task<PlayerDto> AddPlayerToDatabase(Player player, CancellationToken token)
         {
             _dbContext.Players.Add(player);
+
             await _dbContext.SaveChangesAsync(token);
 
             return _mapper.Map<PlayerDto>(player);

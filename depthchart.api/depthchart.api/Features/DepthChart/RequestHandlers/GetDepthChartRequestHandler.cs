@@ -25,7 +25,7 @@ namespace depthchart.api.Features.DepthChart.RequestHandlers
 
         public async Task<IEnumerable<DepthChartRowDto>> Handle(GetDepthChartRequest request, CancellationToken token)
         {
-            var depthChartRow = await _dbContext.DepthPositions
+            var depthChartRows = await _dbContext.DepthPositions
                 .GroupBy(dp => dp.PlayerPosition)
                 .OrderBy(g => g.Key)
                 .Select(grouping =>
@@ -37,7 +37,7 @@ namespace depthchart.api.Features.DepthChart.RequestHandlers
                 )
                 .ToListAsync(token);
 
-            return _mapper.Map<IEnumerable<DepthChartRowDto>>(depthChartRow);
+            return _mapper.Map<IEnumerable<DepthChartRowDto>>(depthChartRows);
         }
     }
 }
