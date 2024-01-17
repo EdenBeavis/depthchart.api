@@ -2,6 +2,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NLog.Extensions.Logging;
+using System.Data.Common;
 
 namespace depthchart.api.Infrastructure.Extensions
 {
@@ -9,10 +10,20 @@ namespace depthchart.api.Infrastructure.Extensions
     {
         public static void SetupDatabases(this IServiceCollection services, IConfiguration configuration)
         {
-            var connection = new SqliteConnection(configuration.GetConnectionString("DepthChartDb"));
+            services.AddSingleton<DbConnection>(container =>
+            {
+                var connectionString = configuration.GetConnectionString("DepthChartDb");
+                var connection = new SqliteConnection(connectionString);
+                connection.Open();
 
-            services.AddEntityFrameworkSqlite();
-            services.AddDbContext<DepthChartContext>(options => options.UseSqlite(connection));
+                return connection;
+            });
+
+            services.AddDbContext<DepthChartContext>((container, options) =>
+            {
+                var connection = container.GetRequiredService<DbConnection>();
+                options.UseSqlite(connection);
+            });
         }
 
         public static void SetupLogging(this IServiceCollection services, IConfiguration configuration)

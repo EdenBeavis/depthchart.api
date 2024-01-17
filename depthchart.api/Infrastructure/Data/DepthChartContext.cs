@@ -10,15 +10,6 @@ namespace depthchart.api.Infrastructure.Data
         public DepthChartContext(DbContextOptions<DepthChartContext> options) : base(options)
         {
             Database.EnsureCreated();
-
-            try
-            {
-                Database.OpenConnection();
-            }
-            catch (Exception ex)
-            {
-                // This will break when mocked.
-            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
